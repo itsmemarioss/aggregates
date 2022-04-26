@@ -16,16 +16,15 @@ class PurchaseOrderTest {
   @CsvSource(value = {"100,2,100", "50,1,51"})
   void addLineItemThrowsExceptionIfLimitIsReached(int limit, int quantity, int value) {
     PurchaseOrder purchaseOrder = new PurchaseOrder(BigDecimal.valueOf(limit));
-    PurchaseOrderLineItem lineItem = new PurchaseOrderLineItem(quantity, BigDecimal.valueOf(value));
-    assertThatThrownBy(() -> purchaseOrder.addItem(lineItem)).isInstanceOf(ApprovedLimitException.class);
+    assertThatThrownBy(() -> purchaseOrder.addItem(quantity, BigDecimal.valueOf(value))).isInstanceOf(ApprovedLimitException.class);
   }
 
   @ParameterizedTest
   @CsvSource(value = {"200,2,100", "60,1,51"})
   void addLineItemSucceedIfItFitsInTheLimit(int limit, int quantity, int value) {
     PurchaseOrder purchaseOrder = new PurchaseOrder(BigDecimal.valueOf(limit));
-    PurchaseOrderLineItem lineItem = new PurchaseOrderLineItem(quantity, BigDecimal.valueOf(value));
-    Assertions.assertThatCode(() -> purchaseOrder.addItem(lineItem)).doesNotThrowAnyException();
+    Assertions.assertThatCode(() -> purchaseOrder.addItem(quantity, BigDecimal.valueOf(value)))
+            .doesNotThrowAnyException();
   }
 
   @Test
@@ -34,11 +33,11 @@ class PurchaseOrderTest {
     PurchaseOrder purchaseOrder = new PurchaseOrder(limit);
 
     Assertions.assertThatCode(
-        () -> purchaseOrder.addItem(new PurchaseOrderLineItem(1, BigDecimal.TEN))
+        () -> purchaseOrder.addItem(1, BigDecimal.TEN)
     ).doesNotThrowAnyException();
 
     assertThatThrownBy(
-        () -> purchaseOrder.addItem(new PurchaseOrderLineItem(10, BigDecimal.TEN))
+        () -> purchaseOrder.addItem(10, BigDecimal.TEN)
     ).isInstanceOf(ApprovedLimitException.class);
   }
 
@@ -46,7 +45,7 @@ class PurchaseOrderTest {
   void ifIncreasingTheQuantityBreaksTheApprovedLimitThrowsAnException() throws ApprovedLimitException {
     BigDecimal limit = BigDecimal.valueOf(100);
     PurchaseOrder purchaseOrder = new PurchaseOrder(limit);
-    int id = purchaseOrder.addItem(new PurchaseOrderLineItem(1, BigDecimal.TEN));
+    int id = purchaseOrder.addItem(1, BigDecimal.TEN);
     assertThatThrownBy(() -> purchaseOrder.changeQuantity(id, 20)).isInstanceOf(ApprovedLimitException.class);
   }
 
@@ -54,7 +53,7 @@ class PurchaseOrderTest {
   void updateQuantityTest() throws ApprovedLimitException {
     BigDecimal limit = BigDecimal.valueOf(100);
     PurchaseOrder purchaseOrder = new PurchaseOrder(limit);
-    int id = purchaseOrder.addItem(new PurchaseOrderLineItem(1, BigDecimal.TEN));
+    int id = purchaseOrder.addItem(1, BigDecimal.TEN);
     purchaseOrder.changeQuantity(id, 2);
     assertThat(purchaseOrder.total()).isEqualTo(BigDecimal.valueOf(20));
   }
@@ -63,7 +62,7 @@ class PurchaseOrderTest {
   void ifQuantityIsReducedRecalculateTheTotal() throws ApprovedLimitException {
     BigDecimal limit = BigDecimal.valueOf(100);
     PurchaseOrder purchaseOrder = new PurchaseOrder(limit);
-    int id = purchaseOrder.addItem(new PurchaseOrderLineItem(10, BigDecimal.TEN));
+    int id = purchaseOrder.addItem(10, BigDecimal.TEN);
     purchaseOrder.changeQuantity(id, 9);
     assertThat(purchaseOrder.total()).isEqualTo(BigDecimal.valueOf(90));
   }
@@ -72,7 +71,7 @@ class PurchaseOrderTest {
   void ifIncreasingThePriceBreaksTheApprovedLimitThrowsAnException() throws ApprovedLimitException {
     BigDecimal limit = BigDecimal.valueOf(100);
     PurchaseOrder purchaseOrder = new PurchaseOrder(limit);
-    int id = purchaseOrder.addItem(new PurchaseOrderLineItem(1, BigDecimal.TEN));
+    int id = purchaseOrder.addItem(1, BigDecimal.TEN);
 
     assertThatThrownBy(
         () -> purchaseOrder.changePrice(id, BigDecimal.valueOf(200))
@@ -83,7 +82,7 @@ class PurchaseOrderTest {
   void ifPriceChangesRecalculateTheTotal() throws ApprovedLimitException {
     BigDecimal limit = BigDecimal.valueOf(100);
     PurchaseOrder purchaseOrder = new PurchaseOrder(limit);
-    int id = purchaseOrder.addItem(new PurchaseOrderLineItem(10, BigDecimal.TEN));
+    int id = purchaseOrder.addItem(10, BigDecimal.TEN);
     purchaseOrder.changePrice(id, BigDecimal.ONE);
     assertThat(purchaseOrder.total()).isEqualTo(BigDecimal.valueOf(10));
   }
@@ -92,7 +91,7 @@ class PurchaseOrderTest {
   void ifALineItemGetsRemovedRecalculateTheTotal() throws ApprovedLimitException {
     BigDecimal limit = BigDecimal.valueOf(100);
     PurchaseOrder purchaseOrder = new PurchaseOrder(limit);
-    int id = purchaseOrder.addItem(new PurchaseOrderLineItem(10, BigDecimal.TEN));
+    int id = purchaseOrder.addItem(10, BigDecimal.TEN);
     purchaseOrder.removeItem(id);
     assertThat(purchaseOrder.total()).isEqualTo(BigDecimal.ZERO);
   }

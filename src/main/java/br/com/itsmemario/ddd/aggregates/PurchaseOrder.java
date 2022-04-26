@@ -16,13 +16,8 @@ public class PurchaseOrder {
     this.approvedLimit = approvedLimit;
   }
 
-  /**
-   *
-   * @param lineItem
-   * @return the item id
-   * @throws ApprovedLimitException
-   */
-  public int addItem(PurchaseOrderLineItem lineItem) throws ApprovedLimitException {
+  public int addItem(int quantity, BigDecimal price) throws ApprovedLimitException {
+    var lineItem = new PurchaseOrderLineItem(quantity, price);
     if (itemExceedsTheLimit(lineItem)) {
       throw new ApprovedLimitException("Item exceeds the approved limit");
     }
