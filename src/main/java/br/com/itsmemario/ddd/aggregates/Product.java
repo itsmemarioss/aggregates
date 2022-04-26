@@ -2,4 +2,4 @@ package br.com.itsmemario.ddd.aggregates;
 
 import java.math.BigDecimal;
 
-public record Product (String name, BigDecimal price){}
+public record Product (String code, BigDecimal price){}

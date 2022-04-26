@@ -3,10 +3,18 @@ package br.com.itsmemario.ddd.aggregates;
 import java.math.BigDecimal;
 
 public class PurchaseOrderLineItem {
+  private Product product;
   private int quantity;
   private BigDecimal price;
 
-  public PurchaseOrderLineItem(int quantity, BigDecimal price) {
+  public PurchaseOrderLineItem(Product product, int quantity) {
+    this.product = product;
+    this.quantity = quantity;
+    this.price = product.price();
+  }
+
+  public PurchaseOrderLineItem(Product product, int quantity, BigDecimal price) {
+    this.product = product;
     this.quantity = quantity;
     this.price = price;
   }
@@ -35,5 +43,8 @@ public class PurchaseOrderLineItem {
     return price.multiply(BigDecimal.valueOf(quantity));
   }
 
+  public Product getProduct() {
+    return this.product;
+  }
 }
 

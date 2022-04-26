@@ -8,7 +8,7 @@ class PurchaseOrderLineItemTest {
 
   @Test
   void total() {
-    PurchaseOrderLineItem item = new PurchaseOrderLineItem(2, BigDecimal.TEN);
+    PurchaseOrderLineItem item = new PurchaseOrderLineItem(new Product("code", BigDecimal.TEN), 2);
     assertThat(item.total()).isEqualTo(BigDecimal.valueOf(20));
   }
 }

@@ -16,8 +16,8 @@ public class PurchaseOrder {
     this.approvedLimit = approvedLimit;
   }
 
-  public int addItem(int quantity, BigDecimal price) throws ApprovedLimitException {
-    var lineItem = new PurchaseOrderLineItem(quantity, price);
+  public int addItem(Product product, int quantity) throws ApprovedLimitException {
+    var lineItem = new PurchaseOrderLineItem(product, quantity);
     if (itemExceedsTheLimit(lineItem)) {
       throw new ApprovedLimitException("Item exceeds the approved limit");
     }
@@ -55,7 +55,7 @@ public class PurchaseOrder {
     }
     var item = getItemById(id);
     var newQuantity = quantity - item.getQuantity();
-    if (limitIsNotEnough(new PurchaseOrderLineItem(newQuantity, item.getPrice()))) {
+    if (limitIsNotEnough(new PurchaseOrderLineItem(item.getProduct(), newQuantity, item.getPrice()))) {
       throw new ApprovedLimitException("New quantity specified exceed the approved limit value");
     }
     item.setQuantity(quantity);
@@ -74,7 +74,7 @@ public class PurchaseOrder {
       throw new IllegalArgumentException("Illegal value for newPrice");
     }
     var item = getItemById(id);
-    PurchaseOrderLineItem itemWithNewPrice = new PurchaseOrderLineItem(item.getQuantity(), newPrice);
+    PurchaseOrderLineItem itemWithNewPrice = new PurchaseOrderLineItem(item.getProduct(), item.getQuantity(), newPrice);
     var newTotal = total().subtract(item.total()).add(itemWithNewPrice.total());
 
     if (approvedLimitIsLessThan(newTotal)) {
